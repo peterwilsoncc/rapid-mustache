@@ -12,6 +12,7 @@ class PWCCRM_Post {
 	public $_date;
 	public $_excerpt;
 	public $_guid;
+	public $_title;
 
 	protected static $posts;
 
@@ -98,7 +99,10 @@ class PWCCRM_Post {
 	 * The title for the object.
 	 */
 	function title() {
-		return esc_html( get_the_title( $this->_post->ID ) );
+		if ( ! $this->_title ) {
+			$this->_title = new PWCCRM_PostTitle( $this->_post );
+		}
+		return $this->_title;
 	}
 
 	/**
