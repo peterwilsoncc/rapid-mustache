@@ -13,10 +13,6 @@ class PWCCRM_PostContent {
 		$this->_post = get_post( $post_id );
 	}
 
-	private function add_filters() {
-		add_filter( 'the_content', array( $this, 'pwcc_test' ) );
-	}
-
 	function __toString() {
 		return $this->rendered();
 	}
