@@ -9,6 +9,7 @@
 class PWCCRM_Post {
 
 	public $_post;
+	public $_date;
 
 	protected static $posts;
 
@@ -16,7 +17,12 @@ class PWCCRM_Post {
 	 * @param int|WP_Post|null  $post_id  (Optional) Post ID or post object.
 	 */
 	function __construct( $post_id ) {
-		$this->_post = get_post( $post_id );
+		if ( is_int( $post_id ) && $this->posts[ $post_id ] ) {
+			$this->_post = $this->posts[ $post_id ];
+		}
+		else {
+			$this->_post = get_post( $post_id );
+		}
 	}
 
 	/**
@@ -30,24 +36,16 @@ class PWCCRM_Post {
 	 * The date the object was published.
 	 */
 	function date() {
-		$_post = &$this->_post;
-		return $this->prepare_date_response( $_post->post_date_gmt, $_post->post_date );
-	}
-
-	/**
-	 * The date the object was published. Formatted for WordPress.
-	 */
-	function date_formatted() {
-		$_post = &$this->_post;
-		return $this->prepare_date_response( $_post->post_date_gmt, $_post->post_date, true );
+		$_date = $this->_date_instance();
+		return $_date;
 	}
 
 	/**
 	 * The date the object was published, as GMT.
 	 */
 	function date_gmt() {
-		$_post = &$this->_post;
-		return $this->prepare_date_response( $_post->post_date_gmt );
+		$_date = $this->_date_instance();
+		return $_date->date_gmt();
 	}
 
 	/**
@@ -68,16 +66,16 @@ class PWCCRM_Post {
 	 * The date the object was last modified.
 	 */
 	function modified() {
-		$_post = &$this->_post;
-		$this->prepare_date_response( $this->_post->post_modified_gmt, $this->_post->post_modified );
+		$_date = $this->_date_instance();
+		return $_date->modified();
 	}
 
 	/**
 	 * The date the object was last modified, as GMT
 	 */
 	function modified_gmt() {
-		$_post = &$this->_post;
-		$this->prepare_date_response( $this->_post->post_modified_gmt );
+		$_date = $this->_date_instance();
+		return $_date->modified_gmt();
 	}
 
 	/**
@@ -98,14 +96,14 @@ class PWCCRM_Post {
 	 * The title for the object.
 	 */
 	function title() {
-		return get_the_title( $this->_post->ID );
+		return esc_html( get_the_title( $this->_post->ID ) );
 	}
 
 	/**
 	 * The content for the object.
 	 */
 	function content() {
-		return apply_filters( 'the_content', $this->_post->post_content );
+		return new PWCCRM_PostContent( $this->_post );
 	}
 
 	/**
@@ -162,32 +160,33 @@ class PWCCRM_Post {
 	}
 
 	/**
+	 * Return the post date instance, creating it first if needs be.
+	 */
+	private function _date_instance() {
+		if ( ! $this->_date ) {
+			$this->_date = new PWCCRM_PostDate( $this->_post );
+		}
+		return $this->_date;
+	}
+
+	/**
 	 * Check the post_date_gmt or modified_gmt and prepare any post or
 	 * modified date for single post output.
 	 *
 	 * @param string       $date_gmt
 	 * @param string|null  $date
-	 * @param bool         $formatted  Whether the date should be formatted according to user settings. Default false.
-	 * @return string|null ISO8601/RFC3339 formatted datetime or WordPress formatted datetime.
+	 * @return string|null ISO8601/RFC3339 formatted datetime.
 	 */
-	protected function prepare_date_response( $date_gmt, $date = null, $formatted = false ) {
+	protected function prepare_date_response( $date_gmt, $date = null ) {
 		if ( '0000-00-00 00:00:00' === $date_gmt ) {
 			return null;
 		}
-		if ( isset( $date ) && $formatted ) {
-			return mysql2date( get_option('date_format'), $date );
-		}
-
-		if ( isset($date) ) {
+		if ( isset( $date ) ) {
 			return mysql_to_rfc3339( $date );
 		}
-
-		if ( $formatted ) {
-			return mysql2date( get_option('date_format'), $date_gmt );
-		}
-
 		return mysql_to_rfc3339( $date_gmt );
 	}
+
 
 	/**
 	 * Check the post excerpt and prepare it for single post output.
@@ -196,7 +195,7 @@ class PWCCRM_Post {
 	 * @return string|null $excerpt
 	 */
 	protected function prepare_excerpt_response( $excerpt ) {
-		if ( post_password_required() ) {
+		if ( post_password_required( $this->_post ) ) {
 			return __( 'There is no excerpt because this is a protected post.' );
 		}
 		/** This filter is documented in wp-includes/post-template.php */

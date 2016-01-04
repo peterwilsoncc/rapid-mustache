@@ -19,3 +19,5 @@ if ( ! class_exists( 'Mustache_Engine' ) ) {
 }
 
 include 'classes/post.php';
+include 'classes/post-content.php';
+include 'classes/post-date.php';
