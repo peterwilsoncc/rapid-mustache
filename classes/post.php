@@ -32,7 +32,7 @@ class PWCCRM_Post {
 	 * Unique identifier for the object.
 	 */
 	function id() {
-		return (int) $this->_post->id;
+		return (int) $this->_post->ID;
 	}
 
 	/**
@@ -55,7 +55,10 @@ class PWCCRM_Post {
 	 * The globally unique identifier for the object.
 	 */
 	function guid() {
-		return $this->_guid_instance();
+		if ( ! $this->_guid ) {
+			$this->_guid = new PWCCRM_PostGuid( $this->_post );
+		}
+		return $this->_guid;
 	}
 
 	/**
@@ -116,14 +119,17 @@ class PWCCRM_Post {
 	 * The ID for the author of the object.
 	 */
 	function author() {
-		return (int) $this->_post->post_author;
+		return get_the_author_meta( 'ID', $this->_post->post_author );
 	}
 
 	/**
 	 * The excerpt for the object.
 	 */
 	function excerpt() {
-		return $this->_excerpt_instance();
+		if ( ! $this->_excerpt ) {
+			$this->_excerpt = new PWCCRM_PostExcerpt( $this->_post );
+		}
+		return $this->_excerpt;
 	}
 
 	/**
@@ -137,14 +143,14 @@ class PWCCRM_Post {
 	 * Whether or not comments are open on the object.
 	 */
 	function comment_status() {
-		return $this->_post->comment_status;
+		return comments_open( $this->_post ) ? 'open' : 'closed';
 	}
 
 	/**
 	 * Whether or not the object can be pinged.
 	 */
 	function ping_status() {
-		return $this->_post->ping_status;
+		return pings_open( $this->_post ) ? 'open' : 'closed';
 	}
 
 	/**
@@ -169,10 +175,6 @@ class PWCCRM_Post {
 	 * Return the post date instance, creating it first if needs be.
 	 */
 	private function _guid_instance() {
-		if ( ! $this->_guid ) {
-			$this->_guid = new PWCCRM_PostGuid( $this->_post );
-		}
-		return $this->_guid;
 	}
 
 	/**
@@ -183,16 +185,6 @@ class PWCCRM_Post {
 			$this->_date = new PWCCRM_PostDate( $this->_post );
 		}
 		return $this->_date;
-	}
-
-	/**
-	 * Return the post excerpt instance, creating it first if needs be.
-	 */
-	private function _excerpt_instance() {
-		if ( ! $this->_excerpt ) {
-			$this->_excerpt = new PWCCRM_PostExcerpt( $this->_post );
-		}
-		return $this->_excerpt;
 	}
 
 }
