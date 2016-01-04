@@ -10,6 +10,7 @@ class PWCCRM_Post {
 
 	public $_post;
 	public $_date;
+	public $_excerpt;
 
 	protected static $posts;
 
@@ -117,7 +118,7 @@ class PWCCRM_Post {
 	 * The excerpt for the object.
 	 */
 	function excerpt() {
-		return $this->prepare_excerpt_response( $this->_post->post_excerpt );
+		return $this->_excerpt_instance();
 	}
 
 	/**
@@ -170,40 +171,13 @@ class PWCCRM_Post {
 	}
 
 	/**
-	 * Check the post_date_gmt or modified_gmt and prepare any post or
-	 * modified date for single post output.
-	 *
-	 * @param string       $date_gmt
-	 * @param string|null  $date
-	 * @return string|null ISO8601/RFC3339 formatted datetime.
+	 * Return the post excerpt instance, creating it first if needs be.
 	 */
-	protected function prepare_date_response( $date_gmt, $date = null ) {
-		if ( '0000-00-00 00:00:00' === $date_gmt ) {
-			return null;
+	private function _excerpt_instance() {
+		if ( ! $this->_excerpt ) {
+			$this->_excerpt = new PWCCRM_PostExcerpt( $this->_post );
 		}
-		if ( isset( $date ) ) {
-			return mysql_to_rfc3339( $date );
-		}
-		return mysql_to_rfc3339( $date_gmt );
-	}
-
-
-	/**
-	 * Check the post excerpt and prepare it for single post output.
-	 *
-	 * @param string       $excerpt
-	 * @return string|null $excerpt
-	 */
-	protected function prepare_excerpt_response( $excerpt ) {
-		if ( post_password_required( $this->_post ) ) {
-			return __( 'There is no excerpt because this is a protected post.' );
-		}
-		/** This filter is documented in wp-includes/post-template.php */
-		$excerpt = apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', $excerpt ) );
-		if ( empty( $excerpt ) ) {
-			return '';
-		}
-		return $excerpt;
+		return $this->_excerpt;
 	}
 
 }
