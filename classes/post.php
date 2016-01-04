@@ -11,6 +11,7 @@ class PWCCRM_Post {
 	public $_post;
 	public $_date;
 	public $_excerpt;
+	public $_guid;
 
 	protected static $posts;
 
@@ -53,7 +54,7 @@ class PWCCRM_Post {
 	 * The globally unique identifier for the object.
 	 */
 	function guid() {
-		return apply_filters( 'get_the_guid', $this->_post->guid );
+		return $this->_guid_instance();
 	}
 
 	/**
@@ -158,6 +159,16 @@ class PWCCRM_Post {
 	 */
 	function sticky() {
 		return is_sticky( $this->_post->ID );
+	}
+
+	/**
+	 * Return the post date instance, creating it first if needs be.
+	 */
+	private function _guid_instance() {
+		if ( ! $this->_guid ) {
+			$this->_guid = new PWCCRM_PostGuid( $this->_post );
+		}
+		return $this->_guid;
 	}
 
 	/**
