@@ -3,6 +3,7 @@
 class PWCCRM_PostContent {
 
 	public $_post;
+	public $_content;
 
 	protected static $posts;
 
@@ -18,7 +19,7 @@ class PWCCRM_PostContent {
 	}
 
 	function rendered() {
-		$content = get_the_content();
+		$content = $this->raw();
 		$content = apply_filters( 'the_content', $content );
 		$content = str_replace( ']]>', ']]&gt;', $content );
 
@@ -26,7 +27,12 @@ class PWCCRM_PostContent {
 	}
 
 	function raw() {
-		return $this->_post->post_content;
+		if ( ! isset( $this->_content ) ) {
+			setup_postdata( $this->_post );
+			$this->_content = get_the_content();
+			wp_reset_postdata();
+		}
+		return $this->_content;
 	}
 
 }
