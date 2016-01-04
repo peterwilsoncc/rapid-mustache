@@ -18,15 +18,12 @@ class PWCCRM_PostExcerpt {
 	}
 
 	function rendered() {
-		$content = get_the_content();
-		$content = apply_filters( 'the_content', $content );
-		$content = str_replace( ']]>', ']]&gt;', $content );
-
-		return $this->prepare_excerpt_response( $this->raw() );
+		$rendered = apply_filters( 'the_excerpt', $this->raw() );
+		return $rendered;
 	}
 
 	function raw() {
-		return $this->_post->post_excerpt;
+		return $this->get_the_excerpt( $this->_post->post_excerpt );
 	}
 
 
@@ -36,15 +33,17 @@ class PWCCRM_PostExcerpt {
 	 * @param string       $excerpt
 	 * @return string|null $excerpt
 	 */
-	protected function prepare_excerpt_response( $excerpt ) {
+	protected function get_the_excerpt( $excerpt ) {
 		if ( post_password_required( $this->_post ) ) {
 			return __( 'There is no excerpt because this is a protected post.' );
 		}
-		/** This filter is documented in wp-includes/post-template.php */
-		$excerpt = apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', $excerpt ) );
+
+		$excerpt = apply_filters( 'get_the_excerpt', $excerpt );
+
 		if ( empty( $excerpt ) ) {
 			return '';
 		}
+
 		return $excerpt;
 	}
 
