@@ -24,3 +24,6 @@ include 'classes/post-date.php';
 include 'classes/post-excerpt.php';
 include 'classes/post-guid.php';
 include 'classes/post-title.php';
+
+include 'classes/user.php';
+include 'classes/user-avatars.php';
