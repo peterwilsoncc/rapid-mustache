@@ -21,6 +21,7 @@ if ( ! class_exists( 'Mustache_Engine' ) ) {
 include 'classes/post.php';
 include 'classes/post-content.php';
 include 'classes/post-date.php';
+include 'classes/post-embedded.php';
 include 'classes/post-excerpt.php';
 include 'classes/post-guid.php';
 include 'classes/post-title.php';

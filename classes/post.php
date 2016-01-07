@@ -13,6 +13,7 @@ class PWCCRM_Post {
 	public $_excerpt;
 	public $_guid;
 	public $_title;
+	public $_embedded;
 
 	protected static $posts;
 
@@ -169,6 +170,16 @@ class PWCCRM_Post {
 	 */
 	function sticky() {
 		return is_sticky( $this->_post->ID );
+	}
+
+	/**
+	 * Embedded objects.
+	 */
+	function _embedded() {
+		if ( ! $this->_embedded ) {
+			$this->_embedded = new PWCCRM_PostEmbedded( $this->_post );
+		}
+		return $this->_embedded;
 	}
 
 	/**
