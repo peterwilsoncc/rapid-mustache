@@ -18,6 +18,8 @@ if ( ! class_exists( 'Mustache_Engine' ) ) {
 	include 'lib/Mustache/0-load.php';
 }
 
+include 'inc/escaping.php';
+
 include 'classes/post.php';
 include 'classes/post-content.php';
 include 'classes/post-date.php';
