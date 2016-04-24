@@ -1,4 +1,4 @@
-<?
+<?php
 
 $pwccrm_escaping = array(
 
